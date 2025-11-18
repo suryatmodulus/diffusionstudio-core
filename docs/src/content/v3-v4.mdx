@@ -4,6 +4,7 @@ This guide will help you migrate your code from Diffusion Studio Core v3 to v4. 
 
 ## Table of Contents
 
+- [Required Headers](#required-headers)
 - [Composition Changes](#composition-changes)
 - [Layer Management](#layer-management)
 - [Clip API Changes](#clip-api-changes)
@@ -16,6 +17,16 @@ This guide will help you migrate your code from Diffusion Studio Core v3 to v4. 
 - [Timestamps and Transcripts](#timestamps-and-transcripts)
 - [Keyframe Animations](#keyframe-animations)
 - [Text Clip Properties](#text-clip-properties)
+
+## Required Headers
+
+> **Important:** v4 requires specific HTTP headers to be configured for proper operation. These headers enable SharedArrayBuffer and other advanced browser APIs needed for video processing.
+
+You must configure your development server and production environment to set these headers:
+- `Cross-Origin-Opener-Policy: same-origin`
+- `Cross-Origin-Embedder-Policy: credentialless`
+
+For more examples and production deployment configurations, see the [Required Headers section](/docs) in the main documentation.
 
 ## Composition Changes
 

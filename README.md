@@ -117,6 +117,14 @@ new core.RectangleClip({
 })
 ```
 
+## Required Headers
+
+Diffusion Studio Core requires specific HTTP headers to be set for proper operation. These headers enable the use of SharedArrayBuffer and other advanced browser APIs needed for video processing.
+
+The following headers are required:
+- `Cross-Origin-Opener-Policy: same-origin`
+- `Cross-Origin-Embedder-Policy: credentialless`
+
 ## Pricing
 
 You can use the engine for free as long as you keep the "Made with Diffusion Studio" watermark on the rendered video. To remove the watermark, you can purchase a [license key](https://www.diffusion.studio/core-rendering-engine#pricing).

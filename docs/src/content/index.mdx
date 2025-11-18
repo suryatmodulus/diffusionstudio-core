@@ -20,3 +20,81 @@ import * as core from '@diffusionstudio/core';
 
 const composition = new core.Composition();
 ```  
+
+## Required Headers
+
+Diffusion Studio Core requires specific HTTP headers to be set for proper operation. These headers enable the use of SharedArrayBuffer and other advanced browser APIs needed for video processing.
+
+The following headers are required:
+- `Cross-Origin-Opener-Policy: same-origin`
+- `Cross-Origin-Embedder-Policy: credentialless`
+
+### Vite
+
+Add the following to your `vite.config.js`:
+
+```js
+export default {
+  server: {
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'credentialless',
+    }
+  },
+}
+```
+
+### Next.js
+
+For Next.js, add the headers in your `next.config.js`:
+
+```js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+          },
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'credentialless',
+          },
+        ],
+      },
+    ];
+  },
+};
+
+module.exports = nextConfig;
+```
+
+### Express/Node.js
+
+For a custom Express server:
+
+```js
+const express = require('express');
+const app = express();
+
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
+  next();
+});
+
+// ... rest of your app
+```
+
+### Production Deployment
+
+For production deployments, ensure your hosting provider or reverse proxy (nginx, Apache, etc.) sets these headers. For example, with nginx:
+
+```nginx
+add_header Cross-Origin-Opener-Policy "same-origin" always;
+add_header Cross-Origin-Embedder-Policy "credentialless" always;
+```
