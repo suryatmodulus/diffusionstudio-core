@@ -119,7 +119,7 @@ new core.RectangleClip({
 
 ## Pricing
 
-You can use the engine for free as long as you keep the "Made with Diffusion Studio" watermark on the rendered video. To remove the watermark, you can purchase a [license key](https://buy.stripe.com/5kQdR94rGczzdGD2dp28800?prefilled_promo_code=EARLYBIRD). It’s 30% off until Nov 30th 2025.
+You can use the engine for free as long as you keep the "Made with Diffusion Studio" watermark on the rendered video. To remove the watermark, you can purchase a [license key](https://www.diffusion.studio/core-rendering-engine#pricing).
 
 ## FAQ
 
@@ -152,4 +152,7 @@ You can’t share your key with other organizations. Other than that, feel free 
 - You want a framework that already includes frontend components like a timeline or inspector
   - Use Remotion with the [Editor Starter](https://www.remotion.dev/docs/editor-starter)
 - You need low level encoding, decoding, muxing, demuxing or transcoding capabilities
-  - Use Mediabunny ([Sponsoring is welcome!](https://github.com/Vanilagy/mediabunny?tab=readme-ov-file#sponsoring))
+  - Use Mediabunny
+
+## How it works
+Diffusion Studio Core is written in TypeScript and built on top of [Mediabunny](https://github.com/Vanilagy/mediabunny) ([Sponsoring is welcome!](https://github.com/Vanilagy/mediabunny?tab=readme-ov-file#sponsoring)). The architecture is inspired by Pixi.js but built from scratch, optimized for media processing. Decoding and encoding are performed using the [WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API), which taps into your system's hardware acceleration. Decoded frames are then painted using the [Canvas 2D Context API](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D). Nearly all features of the Canvas 2D API are available in Diffusion Studio Core.
