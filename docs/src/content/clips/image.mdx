@@ -1,0 +1,44 @@
+# Image Clip
+
+The `ImageClip` class, like all static clips (excluding Video, Audio and Caption), has a fixed start and stop time.
+
+## Basic Usage
+
+```typescript
+import * as core from '@diffusionstudio/core';
+
+const url = 'https://diffusion-studio-public.s3.eu-central-1.amazonaws.com/images/lenna.png';
+const source = await core.Source.from<core.ImageSource>(url);
+const image = new core.ImageClip(source, { delay: 20, duration: 100 });
+```
+
+You can place an `ImageClip` on the timeline by setting its `delay` and `duration` properties.
+
+## Moving the Clip along the Timeline
+
+Using `delay`:
+
+```typescript
+image.delay = 0;
+```
+
+Alternatively, you can achieve the same result using the `trim` method:
+
+```typescript
+image.trim(0, 100);
+```
+
+Which sets the clip's delay to `0` and its duration to `100` (seconds).
+
+## Splitting Clips
+
+You can split an `ImageClip` into two clips (when added to a layer) at a specified time:
+
+```typescript
+const layer = await composition.add(new core.Layer());
+await layer.add(image);
+
+const imageNew = image.split(50);
+```
+
+This will split the clip at 50 seconds.

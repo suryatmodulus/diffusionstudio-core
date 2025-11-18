@@ -1,173 +1,166 @@
-<p align="center">
-  <img src="./assets/banner.png" alt="Library Banner" style="aspect-ratio: 1200/500;width: 100%;" />
-  <h1 align="center">diffusionstudio/core</h1>
-</p>
+# The video engine for your timeline
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Made with-Typescript-blue?color=000000&logo=typescript&logoColor=ffffff" alt="Static Badge">
-  <a href="https://vitejs.dev"><img src="https://img.shields.io/badge/Powered%20by-Vite-000000?style=flat&logo=Vite&logoColor=ffffff" alt="powered by vite"></a>
-  <a href="https://discord.com/invite/zPQJrNGuFB"><img src="https://img.shields.io/discord/1115673443141156924?style=flat&logo=discord&logoColor=fff&color=000000" alt="discord"></a>
-  <a href="https://x.com/diffusionhq"><img src="https://img.shields.io/badge/Follow for-Updates-blue?color=000000&logo=X&logoColor=ffffff" alt="Static Badge"></a>
-  <a href="https://www.ycombinator.com/companies/diffusion-studio"><img src="https://img.shields.io/badge/Combinator-F24-blue?color=000000&logo=ycombinator&logoColor=ffffff" alt="Static Badge"></a>
-</p>
-<br/>
+[![](https://img.shields.io/badge/Made%20with-TypeScript-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![](https://img.shields.io/discord/1115673443141156924?style=flat&logo=discord&logoColor=white&color=5865F2)](https://discord.com/invite/zPQJrNGuFB)
+[![](https://img.shields.io/badge/Follow%20for-Updates-black?logo=x&logoColor=white)](https://x.com/diffusionhq)
+[![](https://img.shields.io/badge/Combinator-F24-orange?logo=ycombinator&logoColor=white)](https://www.ycombinator.com/companies/diffusion-studio)
 
-# Getting Started
-`@diffusionstudio/core` is a 2D motion graphics and video rendering engine powered by WebCodecs. Developers commonly use it for video editing automations and to build editing [playgrounds/web apps](https://playground.diffusion.studio).
+Diffusion Studio Core is a browser based video engine built in TypeScript for fast media composition. Think of it like a game engine that is optimized for video, audio and image workloads. It supports both interactive playback for editing and a high fidelity rendering mode for final output. Developers often use it to build non linear editors or other timeline based media applications (e.g. [Diffusion Studio Pro](https://pro.diffusion.studio)). Under the hood it takes advantage of Canvas2DContext and the WebCodecs API to tap directly into hardware accelerated processing in the browser.
+
+
+https://github.com/user-attachments/assets/3878f293-ab1b-4bb1-8088-b9493546180a
+
 
 ## Documentation
-Explore the full documentation at [docs.diffusion.studio](https://docs.diffusion.studio/docs).
-
-## Credits
-This project owes much to [@Vanilagy's](https://github.com/Vanilagy) exceptional muxer implementations.
-
-## Why Use Diffusion Studio
-💻 100% **client-side**<br/>
-🪽 **Small bundle size** – Only 75 KB with a single dependency<br/>
-🩸 Blazingly **fast** WebCodecs renderer<br/>
-🦾 **AI-first** architecture<br/>
+Visit the [Docs](https://docs.diffusion.studio/docs) for comprehensive guides
 
 ## Getting Started
 ```sh
 npm install @diffusionstudio/core
 ```
 
-## Benchmarks
-![Benchmarks](./assets/benchmarks.png)
-
-## Basic Usage
-Here’s an example of how to use the library:
-
-```javascript
-import * as core from '@diffusionstudio/core';
-
-const url = 'https://diffusion-studio-public.s3.eu-central-1.amazonaws.com/videos/big_buck_bunny_1080p_30fps.mp4';
-
-// create a video clip and trim it
-const video = new core.VideoClip(url).subclip(0, '10s');
-
-// create a text clip and add styles
-const text = new core.TextClip({ 
-  text: 'Bunny - Our Brave Hero', 
-  position: 'center', 
-  duration: '5s', 
-  stroke: { color: '#000000' } 
-});
-
-const composition = new core.Composition(); // 1920x1080
-
-// this is how to compose your clips
-await composition.add(video);  // convenience function for 
-await composition.add(text);   // clip -> layer -> composition
-
-await new core.Encoder(composition).render('hello_world.mp4');
-```
-
-The API models the structure of conventional video editing applications like Adobe Premiere or CapCut, using a layer-based system. Each layer contains zero or more clips of a single type, arranged in ascending chronological order.
-
-Layers are created implicitly with `composition.add(clip)`, but you can also create them manually:
+Recommended usage:
 
 ```typescript
-const layer = composition.createLayer();
-await layer.add(text0);
-await layer.add(text1);
-await layer.add(text2);
-...
+import * as core from "@diffusionstudio/core";
+
+const composition = new core.Composition();
 ```
 
-## Examples
-Find more [examples here.](https://github.com/diffusionstudio/examples), or test all capabilities on our [Playground.]( https://app.diffusion.studio)
+## Features
+A few highlights: declarative timeline compositions, layering, splitting, shapes, captions, rich text, silence removal, effects, transitions, keyframing, bounding boxes, masking, audio ramps, font management, checkpoints, realtime playback and hardware accelerated rendering.
 
-https://github.com/user-attachments/assets/7a943407-e916-4d9f-b46a-3163dbff44c3
+Let’s look at some of these in action.
 
-## How Does Diffusion Studio Compare?
+### Concatenate two videos
+```typescript
+const sources = await Promise.all([
+  core.Source.from<core.VideoSource>('/intro.webm'),
+  core.Source.from<core.VideoSource>('/outro.mp4'),
+]);
 
-### Remotion
-A React-based video creation tool that converts the DOM into videos. It’s beginner-friendly, allowing web developers to leverage their existing skills.
+const layer = await composition.add(
+  new core.Layer({
+    mode: 'SEQUENTIAL'
+  })
+);
 
-### Motion Canvas 
-A standalone editor designed for high-quality animations. It features an imperative API, adding elements procedurally rather than relying on keyframes, making it ideal for detailed animations.
+await layer.add(
+  new core.VideoClip(sources[0], {
+    range: [2, 8],
+  })
+);
 
-### Diffusion Studio
-A video editing **library** rather than a framework with a visual interface. It’s lightweight, operates entirely on the **client-side**, and supports WebCodecs without relying on WebAssembly/ffmpeg. Ideal for integration into existing projects.
+await layer.add(
+  new core.VideoClip(sources[1], {
+    range: [2, 12],
+  })
+);
+```
 
-## Contributing
+### Apply basic transitions
+```typescript
+new core.VideoClip(/** source **/, {
+  transition: {
+    duration: 1,
+    type: 'dissolve',
+  }
+})
+```
 
-Currently, version ^2.0.0 is invite-only. You can request access on our Discord if you're interested in contributing. The source code for version ^1.0.0 is available in this repository.
+### Mask an image
+```typescript
+const mask = new core.RectangleMask({
+  width: 640,
+  height: 1080,
+  radius: 100,
+});
 
-## Current features
-* **Video/Audio** trimming and offsets
-* **Layering**
-* **Splitting** clips
-* **Html & Image** rendering
-* **Relative** units (e.g. 80% clip height)
-* **Shapes** (e.g., rectangles, circles)
-* **Text** with multiple styles
-* **Audio Visualization**
-* High Quality **Captions**
-* **Silence Removal** for audio
-* Web & Local **Fonts**
-* **Custom Clips**
-* **Filters**
-* **Masks**
-* **Blending** modes
-* **Keyframe** animations
-  * **Numbers, Text and Colors**
-  * **Easing** (ease in, ease out etc.)
-  * **Extrapolation** `'clamp' | 'extend'`
-* **Realtime playback**
-* **Hardware accelerated** encoding via WebCodecs
-* **Dynamic render resolution and framerate**
+new core.ImageClip(/** source **/, { mask });
+```
 
-## Background
+### Animate your clips with key frames
+```typescript
+new core.TextClip({
+  text: "Hello World",
+  align: 'center',
+  baseline: 'middle',
+  position: 'center',
+  animations: [
+    {
+      key: 'rotation',
+      frames: [
+        { time: 0, value: 0 },
+        { time: 2, value: 720 },
+      ],
+    },
+  ]
+});
+```
 
-This project was initiated in March 2023 with the mission of creating a “video processing toolkit for the era of AI.” As someone passionate about video editing for over a decade, the release of WebCodecs and WebGPU without feature flags in Chrome presented the perfect opportunity to build something new.
+### Add basic effects to visual clips
+```typescript
+new core.RectangleClip({
+  position: 'center',
+  delay: 6,
+  duration: 4,
+  effects: [
+    {
+      type: 'blur',
+      value: 10,
+    },
+    {
+      type: 'hue-rotate',
+      value: 90
+    }
+  ]
+})
+```
 
-Traditional browser-based video editors rely on server-side rendering, requiring time-consuming uploads and downloads of large files. With WebCodecs, video processing can now be done directly in the browser, making it significantly faster and more efficient.
+## Required Headers
 
-I’m excited to contribute to the next generation of video editing technology.
+Diffusion Studio Core requires specific HTTP headers to be set for proper operation. These headers enable the use of SharedArrayBuffer and other advanced browser APIs needed for video processing.
 
-## License
+The following headers are required:
+- `Cross-Origin-Opener-Policy: same-origin`
+- `Cross-Origin-Embedder-Policy: credentialless`
 
-This library is free to use under the **Diffusion Studio Non-Commercial License**, as long as your project is **not monetized**.
+## Pricing
 
-### ✅ You Can Use This Library for Free If:
-- You are an **individual or a company** and your project is **not generating revenue** (no sales, ads, donations beyond operational costs, or other forms of monetization).
-- Your project **may become commercial in the future**, as long as you obtain a commercial license before monetization.
+You can use the engine for free as long as you keep the "Made with Diffusion Studio" watermark on the rendered video. To remove the watermark, you can purchase a [license key](https://www.diffusion.studio/core-rendering-engine#pricing).
 
-### 💼 If Your Project Becomes Commercial:
-- If you decide to **monetize your project** (e.g., through sales, ads, premium features, or enterprise use), you must purchase a commercial license.
-- Visit our website to obtain a license when you’re ready to monetize.
+## FAQ
 
-### 📄 More Details:
--	See LICENSE for the Non-Commercial License.
--	See LICENSE_COMMERCIAL for the Commercial License terms.
+### Do I have to renew the license key?
 
-For any questions, feel free to [contact us](https://diffusion.studio).
+No. It’s a one time purchase and your key stays valid forever.
 
-## Version History  
+### What happens if the license server is down?
 
-### v1.x _(Released October 2024)_  
-- Fully open-source (MPL-2.0 license)  
-- Relied on Pixi.js for rendering (resulting in a large library size)  
-- WebGPU support  
-- FFmpeg-compiled demuxer  
-- Limited to short-form content  
+There is no license server. Your key is a signed payload created with our private key. The library includes a public key that verifies it locally so it works even without an internet connection.
 
-### v2.x _(Released February 1, 2025)_  
-- **Source code access by invite only** (Commercial & Non-Commercial license)  
-- Removed Pixi.js, significantly reducing library size  
-- Introduced a custom Canvas 2D renderer  
-- Continued FFmpeg-based demuxing  
-- Still limited to short-form content  
+### What if I lose my key?
 
-### v3.x _(Released February 18, 2025)_  
-- **Source code access by invite only** (Commercial & Non-Commercial license)  
-- Removed all FFmpeg dependencies  
-- Retained Canvas 2D rendering  
-- Introduced pure TypeScript-based muxers/demuxers  
-- Added support for long-form content  
+We can regenerate it any time. Just email contact |at| diffusion.studio.
 
-### v4.x _(Estimated Release: July 2025)_  
-- **Source code access by invite only** (Commercial & Non-Commercial license)  
-- Introducing a custom WebGL2 renderer  
+### What are the limitations of the key?
+
+You can’t share your key with other organizations. Other than that, feel free to use it across as many of your own apps or domains as you need.
+
+## When to use Diffusion Studio Core
+- You’re building a timeline based application such as an NLE that needs to render video in the browser
+- Your app needs to compose multiple assets into a video or audio output
+- You want a framework agnostic and efficient video engine that works with Svelte, Vue, Solid, Angular and others
+
+## When not to use Diffusion Studio Core
+- You need to render videos server side
+  - Use Remotion
+- You want to compose videos with HTML or React
+  - Use Remotion
+- You want a framework that already includes frontend components like a timeline or inspector
+  - Use Remotion with the [Editor Starter](https://www.remotion.dev/docs/editor-starter)
+- You need low level encoding, decoding, muxing, demuxing or transcoding capabilities
+  - Use Mediabunny
+
+## How it works
+Diffusion Studio Core is written in TypeScript and built on top of [Mediabunny](https://github.com/Vanilagy/mediabunny) ([Sponsoring is welcome!](https://github.com/Vanilagy/mediabunny?tab=readme-ov-file#sponsoring)). The architecture is inspired by Pixi.js but built from scratch, optimized for media processing. Decoding and encoding are performed using the [WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API), which taps into your system's hardware acceleration. Decoded frames are then painted using the [Canvas 2D Context API](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D). Nearly all features of the Canvas 2D API are available in Diffusion Studio Core.

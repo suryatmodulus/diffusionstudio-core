@@ -1,0 +1,99 @@
+# Text Clips
+
+The following example demonstrates how to style text clips:
+
+```typescript
+import * as core from '@diffusionstudio/core';
+
+const thin = await core.FontManager.load({
+  family: 'Geologica',
+  weight: '300',
+  size: 19
+});
+
+const bold = await core.FontManager.load({
+  family: 'Geologica',
+  weight: '700',
+  size: 24
+});
+
+await composition.add(
+  new core.TextClip({
+    text: "The quick\nbrown fox jumps over the lazy dog.",
+    align: 'center',
+    baseline: 'middle',
+    font: bold,
+    maxWidth: '40%',
+    leading: 1.3,
+    glow: {
+      intensity: 1,
+      color: '#000000',
+      radius: 10,
+      opacity: 100,
+    },
+    stroke: {
+      width: 5,
+      color: '#000000',
+      lineJoin: 'round',
+      lineCap: 'round',
+      miterLimit: 4,
+    },
+    shadow: [
+      {
+        offsetX: 4,
+        offsetY: 5,
+        blur: 20,
+        color: '#000000',
+        opacity: 100,
+      },
+      {
+        offsetX: -8,
+        offsetY: -4,
+        blur: 20,
+        color: '#FFFFFF',
+        opacity: 90,
+      },
+    ],
+    x: '50%',
+    y: '50%',
+    styles: [{
+      start: 0,
+      stop: 9,
+      style: {
+        font: thin,
+        color: '#0000FF',
+        casing: 'upper',
+      }
+    }]
+  })
+);
+```
+
+With the `styles` property, you can define the styles you want to override for specific sections of the `TextClip`.
+
+---
+
+We have loaded the web font from a predefined set of popular web fonts. You can also use custom web fonts like this:
+
+```typescript
+const manager = new core.FontManager();
+
+const roboto = await manager.load({
+  source: "https://fonts.gstatic.com/s/roboto/v32/KFOlCnqEu92Fr1MmSU5fBBc4AMP6lQ.woff2",
+  weight: '400',
+  family: 'Roboto'
+});
+```
+
+or local fonts (in Chrome):
+```typescript
+const local = await core.FontManager.localFonts();
+
+console.log(local);
+
+const font = await manager.load(local[0].variants[0]);
+```
+
+For more examples, see [examples](https://github.com/diffusionstudio/examples/blob/f8bde98c53320b8bcd78a541244fc95ff2b40cbd/showcase/src/compositions/font.ts).
+
+Setting the `align` and `baseline` properties will adjust the anchor point, comparable to the [transform-origin](https://developer.mozilla.org/en-US/docs/Web/CSS/transform-origin) in CSS.

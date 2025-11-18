@@ -1,11 +1,11 @@
-import * as core from '../src';
+import * as core from '@diffusionstudio/core-v4';
 import { render } from './render';
 
 export function setupControls(composition: core.Composition) {
   const handlePlay = () => composition.play();
   const handlePause = () => composition.pause();
   const handleBack = () => composition.seek(0);
-  const handleForward = () => composition.seek(composition.duration.frames);
+  const handleForward = () => composition.seek(composition.duration);
   const handleExport = () => render(composition);
 
   playButton.addEventListener('click', handlePlay);
@@ -14,21 +14,21 @@ export function setupControls(composition: core.Composition) {
   forwardButton.addEventListener('click', handleForward);
   exportButton.addEventListener('click', handleExport);
 
-  composition.on('play', () => {
+  composition.on('playback:start', () => {
     playButton.style.display = 'none';
     pauseButton.style.display = 'block';
   });
-  composition.on('pause', () => {
+  composition.on('playback:end', () => {
     pauseButton.style.display = 'none';
     playButton.style.display = 'block';
   });
-  composition.on('currentframe', () => {
+  composition.on('playback:time', () => {
     time.textContent = composition.time();
   });
 
-  composition.attachPlayer(player);
+  composition.mount(player);
 
-  const observer = new ResizeObserver(() => {
+  const handleResize = () => {
     const scale = Math.min(
       container.clientWidth / composition.width,
       container.clientHeight / composition.height
@@ -38,9 +38,12 @@ export function setupControls(composition: core.Composition) {
     player.style.height = `${composition.height}px`;
     player.style.transform = `scale(${scale})`;
     player.style.transformOrigin = 'center';
-  });
+  }
+
+  const observer = new ResizeObserver(handleResize);
 
   observer.observe(document.body);
+  composition.on('resize', handleResize);
   time.textContent = composition.time();
   composition.seek(0);
 }

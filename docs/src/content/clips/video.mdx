@@ -1,0 +1,44 @@
+# Video Clip
+
+This guide shows how to load a video source, create a `VideoClip`, trim and position it, and add it to a composition.
+
+## Adding and Manipulating Video
+
+### Loading a Video Source
+
+To efficiently share resources between muliple `VideoClip`s you can create a `VideoSource`. You can create a `VideoSource` from a file/blob or an external URL. Here, we will use a URL:
+
+```typescript
+const source = await core.Source.from<core.VideoSource>('https://diffusion-studio-public.s3.eu-central-1.amazonaws.com/videos/big_buck_bunny_1080p_30fps.mp4');
+```
+
+### Creating a Video Clip
+
+Now, create a `VideoClip` from the `VideoSource`:
+
+```typescript
+const video = new core.VideoClip(source, { // also accepts blobs or file handles
+  position: 'center', // ensures the clip is centered
+  height: '100%', // stretches the clip to the full height
+}); 
+```
+
+> Note: By not setting width to 100%, the video will maintain its original aspect ratio.
+
+### Performing Video Manipulations
+
+You can perform various manipulations on the `VideoClip`:
+
+```typescript
+video.delay = -4; // move the clip to the left by 4 seconds
+video.range = [4, 8]; // trims the clip from start to end seconds
+```
+
+### Adding the Clip to the Composition
+
+Add the clip to the composition:
+
+```typescript
+const layer = await composition.add(new core.Layer());
+await layer.add(video);
+```

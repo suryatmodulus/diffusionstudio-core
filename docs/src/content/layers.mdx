@@ -1,0 +1,80 @@
+# Layers
+
+Layers serve as an abstraction layer in Diffusion Studio, providing three key functionalities:
+
+1. **Efficient Clip Rendering:** Layers determine which clips will be rendered, enabling the software to bypass unnecessary iterations over non-visible clips. Only visible clips within the layer are processed.
+
+2. **Layering Control:** Layers define the layering order of visible elements. The `Layer` at index 0 will be rendered last, meaning it appears on top of other layers.
+
+3. **Clip Management:** Layers manage the clips' lifecycle, including initialization, adding, removing, and updating clips.
+
+### Layer Creation
+
+```typescript
+import * as core from '@diffusionstudio/core';
+
+const layer = new core.Layer();
+```
+
+it's usually recommended to add layers to the composition first, before adding clips to it.
+
+```typescript
+await composition.add(layer);
+```
+
+You can now add clips to the layer, but it's important to note that clips cannot overlap.
+
+```typescript
+await layer.add(
+  new core.TextClip({
+    text: 'Hello',
+    delay: 0, // Default delay
+    duration: 5,
+  })
+);
+
+await layer.add(
+  new core.TextClip({
+    text: 'World',
+    delay: 5,
+    duration: 10,
+  })
+);
+```
+
+If the added clip overlaps with an existing clip, the new clip will be moved to a new layer.
+
+> By calling `layer.remove(clip)` you can remove a `Clip` from the `Layer`
+
+### Sequential Mode
+
+Layers can also be configured to operate in *sequential mode*, which ensures that each new clip added starts exactly where the previous clip ended.
+
+```typescript
+const layer = new core.Layer({
+  mode: 'SEQUENTIAL',
+});
+
+// undo sequential mode
+layer.mode = 'DEFAULT';
+```
+
+### Layering
+
+Let's set up an example to illustrate how tracks are layered:
+
+```typescript
+const video = await composition.add(new core.Layer()); 
+const image = await composition.add(new core.Layer());
+const text = await composition.add(new core.Layer());
+```
+
+When a layer is added to the composition it will be added to `position 0` and rendered last. When visualized the text layer will be rendered on top of the image layer, which will be rendered on top of all `VideoClip`s inside the video layer.
+
+Each `Layer` implements the `index` property which can be used to change the order. It accepts an index or `top | bottom`:
+
+```typescript
+video.index = 0;
+```
+
+Now the video layer will be rendered on top of all other layers.

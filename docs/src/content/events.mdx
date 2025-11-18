@@ -1,0 +1,86 @@
+import { Callout } from 'nextra/components';
+
+# Events
+
+In Diffusion Studio, the **Composition** emits various events related to playback control and composition state changes:
+
+```typescript
+const composition = new core.Composition();
+
+// Playback events
+composition.on('playback:start', () => {
+  console.log('Playback started');
+});
+
+composition.on('playback:end', () => {
+  console.log('Playback ended');
+});
+
+composition.on('playback:time', (time: number | undefined) => {
+  console.log('Current playback time:', time);
+});
+
+// Layer events
+composition.on('layer:add', () => {
+  console.log('Layer added');
+});
+
+composition.on('layer:remove', () => {
+  console.log('Layer removed');
+});
+
+// Composition events
+composition.on('resize', () => {
+  console.log('Composition resized');
+});
+
+composition.on('restored', () => {
+  console.log('Composition restored');
+});
+```
+
+## Event Types
+
+The Composition emits the following events:
+
+| Event | Payload Type | Description |
+|-------|--------------|-------------|
+| `playback:start` | `undefined` | Emitted when playback starts |
+| `playback:end` | `undefined` | Emitted when playback ends |
+| `playback:time` | `number \| undefined` | Emitted during playback with the current time |
+| `layer:add` | `undefined` | Emitted when a layer is added to the composition |
+| `layer:remove` | `undefined` | Emitted when a layer is removed from the composition |
+| `resize` | `undefined` | Emitted when the composition is resized |
+| `restored` | `undefined` | Emitted when the composition state is restored |
+
+## Unsubscribing from Events
+
+The `on` method returns an event ID, which you can use to unsubscribe from events when they are no longer needed:
+
+```typescript
+const playbackTimeEvt = composition.on('playback:time', (time) => {
+  console.log('Time:', time);
+});
+
+composition.off(playbackTimeEvt);
+```
+
+Alternatively you can call the return value to unsubscribe from the event:
+
+```typescript
+const unsubscribe = composition.on('playback:start', () => {
+  console.log('Playback started');
+});
+
+unsubscribe();
+```
+
+Which allows this pattern in react:
+
+```typescript
+useEffect(() => {
+  return composition.on('playback:end', (time) => {
+    setPlaying(false);
+  });
+}, []);
+```
