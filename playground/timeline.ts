@@ -1,16 +1,27 @@
-import * as core from '../src';
+import * as core from '@diffusionstudio/core-v4';
 
 export function setupTimeline(composition: core.Composition) {
-  composition.on('currentframe', (evt) => {
-    const pos = evt.detail / composition.duration.frames;
+  composition.on('playback:time', () => {
+    const pos = composition.currentTime / composition.duration;
 
     cursor.style.left = `${timeline.clientWidth * pos}px`;
+  });
+
+  let seeking = false;
+  timeline.addEventListener('mousemove', async (evt: MouseEvent) => {
+    const pos = evt.offsetX / timeline.clientWidth;
+
+    if(!seeking) {
+      seeking = true;
+      await composition.seek(composition.duration * pos);
+      seeking = false;
+    }
   });
 
   timeline.addEventListener('click', (evt: MouseEvent) => {
     const pos = evt.offsetX / timeline.clientWidth;
 
-    composition.seek(composition.duration.frames * pos);
+    composition.seek(composition.duration * pos);
   });
 }
 
